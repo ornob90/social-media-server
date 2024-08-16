@@ -1,8 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
+  Get,
+  Param,
   Post,
   Put,
+  Query,
   Req,
   UsePipes,
   ValidationPipe,
@@ -15,6 +19,23 @@ import { UpdatePostsDto } from './dto/update-posts.dto';
 @Controller('posts')
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
+
+  @Get('owner/:userId')
+  getPostsByUser(
+    @Param('userId') userId: string,
+    @Query('page') page: number,
+    @Query('limit') limit: number,
+  ) {
+    return this.postsService.getPostsByUser(userId, page, limit);
+  }
+
+  @Get('owner/:userId/:postId')
+  getPostDetails(
+    @Param('userId') userId: string,
+    @Param('postId') postId: string,
+  ) {
+    return this.postsService.getPostDetails(userId, postId);
+  }
 
   @Post('/create')
   @UsePipes(new ValidationPipe())
@@ -32,5 +53,10 @@ export class PostsController {
     @Body() updatePostsDto: UpdatePostsDto,
   ) {
     return this.postsService.update(req, updatePostsDto);
+  }
+
+  @Delete('/delete/:postId')
+  delete(@Param('postId') postId: string) {
+    return this.postsService.delete(postId);
   }
 }

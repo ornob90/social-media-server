@@ -6,6 +6,7 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { Response } from 'express';
+import { CustomErrorResponse } from 'src/types/middleware.types';
 
 @Catch()
 export class GlobalExceptionFilter implements ExceptionFilter {
@@ -24,11 +25,19 @@ export class GlobalExceptionFilter implements ExceptionFilter {
         ? exception.getResponse()
         : 'Internal Server Error';
 
-    response.status(status).send({
+    let errorResponse: CustomErrorResponse = {
       acknowledgement: false,
-      status,
-      message,
+      statusCode: status,
       timestamp: new Date().toISOString(),
-    });
+    };
+
+    if (typeof message === 'string') errorResponse.message = message;
+    else {
+      errorResponse = {
+        ...errorResponse,
+        ...message,
+      };
+    }
+    response.status(status).send(errorResponse);
   }
 }
