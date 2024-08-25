@@ -7,6 +7,7 @@ import { mongodbConfig } from './config/mongodb.config';
 import { MongooseModule } from '@nestjs/mongoose';
 import { VerifyMiddleware } from './middlewares/verify.middleware';
 import { PostsController } from './posts/posts.controller';
+import { ReactionsModule } from './reactions/reactions.module';
 
 @Module({
   imports: [
@@ -15,6 +16,7 @@ import { PostsController } from './posts/posts.controller';
     }),
     UsersModule,
     PostsModule,
+    ReactionsModule,
   ],
   controllers: [AppController],
   providers: [AppService],
