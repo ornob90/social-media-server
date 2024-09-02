@@ -33,6 +33,6 @@ export class BookmarksService {
       throw new NotFoundException('Failed to remove bookmark');
     }
 
-    return removeResponse;
+    return null;
   }
 }
