@@ -10,6 +10,7 @@ import { PostsController } from './posts/posts.controller';
 import { ReactionsModule } from './reactions/reactions.module';
 import { BookmarksModule } from './bookmarks/bookmarks.module';
 import { FollowModule } from './follow/follow.module';
+import { NotificationModule } from './notification/notification.module';
 
 @Module({
   imports: [
@@ -21,6 +22,7 @@ import { FollowModule } from './follow/follow.module';
     ReactionsModule,
     BookmarksModule,
     FollowModule,
+    NotificationModule,
   ],
   controllers: [AppController],
   providers: [AppService],

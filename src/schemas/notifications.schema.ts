@@ -10,7 +10,7 @@ export class Notification {
     ref: 'User',
     required: [true, 'User is required and must be a valid user ID'],
   })
-  user: Types.ObjectId;
+  userId: Types.ObjectId;
 
   @Prop({
     required: [true, 'Content is required for the notification'],
