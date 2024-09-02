@@ -11,6 +11,7 @@ import { ReactionsModule } from './reactions/reactions.module';
 import { BookmarksModule } from './bookmarks/bookmarks.module';
 import { FollowModule } from './follow/follow.module';
 import { NotificationModule } from './notification/notification.module';
+import { MessageModule } from './message/message.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { NotificationModule } from './notification/notification.module';
     BookmarksModule,
     FollowModule,
     NotificationModule,
+    MessageModule,
   ],
   controllers: [AppController],
   providers: [AppService],
