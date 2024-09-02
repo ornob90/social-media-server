@@ -8,7 +8,7 @@ export type FollowerDocument = Follower & Document;
 export class Follower {
   @Prop({
     type: Types.ObjectId,
-    ref: 'User',
+    ref: User.name,
     required: [true, 'Following user is required and must be a valid user ID'],
   })
   following: Types.ObjectId; // Foreign key referencing the user being followed

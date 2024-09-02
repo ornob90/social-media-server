@@ -8,6 +8,8 @@ import { MongooseModule } from '@nestjs/mongoose';
 import { VerifyMiddleware } from './middlewares/verify.middleware';
 import { PostsController } from './posts/posts.controller';
 import { ReactionsModule } from './reactions/reactions.module';
+import { BookmarksModule } from './bookmarks/bookmarks.module';
+import { FollowModule } from './follow/follow.module';
 
 @Module({
   imports: [
@@ -17,6 +19,8 @@ import { ReactionsModule } from './reactions/reactions.module';
     UsersModule,
     PostsModule,
     ReactionsModule,
+    BookmarksModule,
+    FollowModule,
   ],
   controllers: [AppController],
   providers: [AppService],
