@@ -37,6 +37,15 @@ export class Post {
     default: 'public',
   })
   privacy: string;
+
+  @Prop({ type: Number, default: 0 })
+  likesCount: number;
+
+  @Prop({ type: Number, default: 0 })
+  commentsCount: number;
+
+  @Prop({ type: Number, default: 0 })
+  sharesCount: number;
 }
 
 export const PostSchema = SchemaFactory.createForClass(Post);

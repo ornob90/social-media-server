@@ -38,11 +38,8 @@ export class ReactionsController {
     return this.reactionService.createReaction(createReactionDto);
   }
 
-  @Delete('remove/:userId/:postId')
-  removeReaction(
-    @Param('userId') userId: string,
-    @Param('postId') postId: string,
-  ) {
-    return this.reactionService.removeReaction(userId, postId);
+  @Delete('remove/:reactionId')
+  removeReaction(@Param('reactionId') reactionId: string) {
+    return this.reactionService.removeReaction(reactionId);
   }
 }
