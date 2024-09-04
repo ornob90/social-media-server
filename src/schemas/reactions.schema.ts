@@ -1,19 +1,21 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import { User } from './users.schema';
+import { Post } from './posts.schema';
 export type ReactionDocument = Reaction & Document;
 
 @Schema({ timestamps: true })
 export class Reaction {
   @Prop({
     type: Types.ObjectId,
-    ref: 'User',
+    ref: User.name,
     required: [true, 'User is required and must be a valid user ID'],
   })
   user: Types.ObjectId; // Foreign key to reference User
 
   @Prop({
     type: Types.ObjectId,
-    ref: 'Post',
+    ref: Post.name,
     required: [true, 'Post is required and must be a valid post ID'],
   })
   post: Types.ObjectId; // Foreign key to reference Post

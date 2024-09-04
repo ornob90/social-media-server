@@ -1,5 +1,6 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
 import { Document, Types } from 'mongoose';
+import { User } from './users.schema';
 
 export type PostDocument = Post & Document;
 
@@ -7,7 +8,7 @@ export type PostDocument = Post & Document;
 export class Post {
   @Prop({
     type: Types.ObjectId,
-    ref: 'User',
+    ref: User.name,
     required: [true, 'User is required and must be a valid user ID'],
   })
   user: Types.ObjectId; // Foreign key to reference User

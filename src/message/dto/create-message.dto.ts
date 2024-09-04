@@ -1,6 +1,8 @@
-import { IsNotEmpty } from 'class-validator';
+import { IsNotEmpty, IsOptional } from 'class-validator';
 
 export class CreateMessageDto {
+  roomId?: string;
+
   @IsNotEmpty({ message: 'Sender ID is required!' })
   sender: string;
 

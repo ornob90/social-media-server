@@ -1,21 +1,29 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
-import { User } from './users.schema'; // Assuming User schema is in user.schema.ts
+import mongoose, { Document, Types } from 'mongoose';
+import { User } from './users.schema';
+import { Room } from './rooms.schema';
 
 export type MessageDocument = Message & Document;
 
 @Schema({ timestamps: true })
 export class Message {
   @Prop({
-    type: Types.ObjectId,
-    ref: 'User',
+    type: mongoose.Schema.Types.ObjectId,
+    ref: Room.name,
+    required: [true, 'Room Id is required!'],
+  })
+  roomId: Types.ObjectId;
+
+  @Prop({
+    type: mongoose.Schema.Types.ObjectId,
+    ref: User.name,
     required: [true, 'Sender is required and must be a valid user ID'],
   })
   sender: Types.ObjectId; // Foreign key to reference User as sender
 
   @Prop({
-    type: Types.ObjectId,
-    ref: 'User',
+    type: mongoose.Schema.Types.ObjectId,
+    ref: User.name,
     required: [true, 'Receiver is required and must be a valid user ID'],
   })
   receiver: Types.ObjectId; // Foreign key to reference User as receiver

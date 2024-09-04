@@ -4,6 +4,8 @@ import {
   Delete,
   Get,
   Param,
+  ParseBoolPipe,
+  ParseIntPipe,
   Post,
   Put,
   Query,
@@ -20,11 +22,21 @@ import { UpdatePostsDto } from './dto/update-posts.dto';
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
+  @Get('all')
+  @UsePipes(new ValidationPipe())
+  getAllPosts(
+    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipe) limit: number,
+  ) {
+    return this.postsService.getAllPosts(page, limit);
+  }
+
   @Get('owner/:userId')
+  @UsePipes(new ValidationPipe())
   getPostsByUser(
     @Param('userId') userId: string,
-    @Query('page') page: number,
-    @Query('limit') limit: number,
+    @Query('page', ParseIntPipe) page: number,
+    @Query('limit', ParseIntPipe) limit: number,
   ) {
     return this.postsService.getPostsByUser(userId, page, limit);
   }

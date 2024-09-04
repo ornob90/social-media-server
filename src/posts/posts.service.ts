@@ -14,10 +14,25 @@ import { UpdatePostsDto } from './dto/update-posts.dto';
 export class PostsService {
   constructor(@InjectModel(Post.name) private postModel: Model<Post>) {}
 
+  async getAllPosts(page = 1, limit = 10) {
+    const skip = (page - 1) * limit;
+    let totalPosts: number | null = null;
+
+    if (skip === 0) {
+      totalPosts = await this.postModel.estimatedDocumentCount();
+    }
+
+    const posts = await this.postModel.find({}).skip(skip).limit(limit).exec();
+
+    return { totalPosts, posts };
+  }
+
   async getPostsByUser(userId: string, page = 1, limit = 10) {
     const skip = (page - 1) * limit;
 
-    const totalPosts = await this.postModel.estimatedDocumentCount();
+    const totalPosts = await this.postModel
+      .find({ user: userId })
+      .estimatedDocumentCount();
 
     if (totalPosts === 0) {
       throw new NotFoundException('No Posts Found!');
