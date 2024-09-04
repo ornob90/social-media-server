@@ -22,13 +22,14 @@ import { UpdatePostsDto } from './dto/update-posts.dto';
 export class PostsController {
   constructor(private readonly postsService: PostsService) {}
 
-  @Get('all')
+  @Get('all/:userId')
   @UsePipes(new ValidationPipe())
   getAllPosts(
+    @Param('userId') userId: string,
     @Query('page', ParseIntPipe) page: number,
     @Query('limit', ParseIntPipe) limit: number,
   ) {
-    return this.postsService.getAllPosts(page, limit);
+    return this.postsService.getAllPosts(userId, page, limit);
   }
 
   @Get('owner/:userId')

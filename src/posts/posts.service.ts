@@ -9,12 +9,14 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Post } from 'src/schemas/posts.schema';
 import { Model } from 'mongoose';
 import { UpdatePostsDto } from './dto/update-posts.dto';
+import { Reaction } from 'src/schemas/reactions.schema';
+import { User } from 'src/schemas/users.schema';
 
 @Injectable()
 export class PostsService {
   constructor(@InjectModel(Post.name) private postModel: Model<Post>) {}
 
-  async getAllPosts(page = 1, limit = 10) {
+  async getAllPosts(userId: string, page = 1, limit = 10) {
     const skip = (page - 1) * limit;
     let totalPosts: number | null = null;
 
@@ -22,7 +24,44 @@ export class PostsService {
       totalPosts = await this.postModel.estimatedDocumentCount();
     }
 
-    const posts = await this.postModel.find({}).skip(skip).limit(limit).exec();
+    const posts = await this.postModel.aggregate([
+      {
+        $lookup: {
+          from: Reaction.name,
+          let: { postId: '$_id' },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $and: [
+                    { $eq: ['$post', '$$postId'] },
+                    { $eq: ['$user', userId] },
+                    { $eq: ['$type', 'like'] },
+                  ],
+                },
+              },
+            },
+          ],
+          as: 'reactions',
+        },
+      },
+      {
+        $addFields: {
+          isLiked: {
+            $gt: [{ $size: '$reactions' }, 0],
+          },
+        },
+      },
+
+      { $skip: skip },
+      { $limit: limit },
+    ]);
+
+    await this.postModel.populate(posts, {
+      path: 'user',
+      model: User.name,
+      select: 'displayName email photoUrl',
+    });
 
     return { totalPosts, posts };
   }
