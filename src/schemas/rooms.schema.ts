@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import mongoose, { Document, Types } from 'mongoose';
 import { User } from './users.schema'; // Assuming User schema is in users.schema.ts
 import { RoomType } from 'src/types/rooms.type';
 
@@ -15,7 +15,7 @@ export class Room {
   type: string;
 
   @Prop({
-    type: [{ type: Types.ObjectId, ref: 'User' }],
+    type: [{ type: mongoose.Schema.Types.ObjectId, ref: 'User' }],
     validate: [
       (val: Types.ObjectId[]) => val.length > 1,
       'There must be at least two participants in a room',

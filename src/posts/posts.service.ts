@@ -8,7 +8,7 @@ import { VerifiedRequestInterface } from 'src/types/middleware.types';
 import { CreatePostDto } from './dto/create-posts.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Post } from 'src/schemas/posts.schema';
-import { model, Model } from 'mongoose';
+import { model, Model, Types } from 'mongoose';
 import { UpdatePostsDto } from './dto/update-posts.dto';
 import { Reaction } from 'src/schemas/reactions.schema';
 import { User } from 'src/schemas/users.schema';
@@ -34,21 +34,32 @@ export class PostsService {
       {
         $lookup: {
           from: 'reactions',
-          let: { postId: '$_id' },
+          localField: '_id',
+          foreignField: 'post',
+          as: 'reactions',
           pipeline: [
             {
               $match: {
-                $expr: {
-                  $and: [
-                    { $eq: ['$post', '$$postId'] },
-                    { $eq: ['$reactionFrom', userId] },
-                    { $eq: ['$type', 'like'] },
-                  ],
-                },
+                $and: [
+                  {
+                    $expr: {
+                      $eq: [
+                        '$reactionFrom',
+                        Types.ObjectId.createFromHexString(userId),
+                      ],
+                    },
+                  },
+                  { $expr: { $eq: ['$type', 'like'] } },
+                ],
+              },
+            },
+            {
+              $project: {
+                _id: 0,
+                reactionFrom: 1,
               },
             },
           ],
-          as: 'reactions',
         },
       },
       {
@@ -58,15 +69,69 @@ export class PostsService {
           },
         },
       },
-      // {
-      //   $unset: 'reactions',
-      // },
+      {
+        $unset: 'reactions',
+      },
       {
         $sort: { createdAt: -1 },
       },
       { $skip: skip },
       { $limit: limit },
     ]);
+
+    // const posts = await this.postModel.aggregate([
+    //   {
+    //     $lookup: {
+    //       from: 'reactions',
+    //       localField: '_id',
+    //       foreignField: 'post',
+    //       as: 'reactions',
+    //     },
+    //   },
+    //   {
+    //     $addFields: {
+    //       isLiked: {
+    //         $in: [
+    //           userId,
+    //           {
+    //             $map: {
+    //               input: {
+    //                 $filter: {
+    //                   input: '$reactions',
+    //                   as: 'reaction',
+    //                   cond: {
+    //                     $and: [
+    //                       { $eq: ['$$reaction.reactionFrom', userId] },
+    //                       { $eq: ['$$reaction.type', 'like'] },
+    //                     ],
+    //                   },
+    //                 },
+    //               },
+    //               as: 'likedReaction',
+    //               in: '$$likedReaction.reactionFrom',
+    //             },
+    //           },
+    //         ],
+    //       },
+    //     },
+    //   },
+
+    //   {
+    //     $addFields: {
+    //       isLiked: {
+    //         $gt: [{ $size: '$reactions' }, 0],
+    //       },
+    //     },
+    //   },
+    //   {
+    //     $unset: 'reactions',
+    //   },
+    //   {
+    //     $sort: { createdAt: -1 },
+    //   },
+    //   { $skip: skip },
+    //   { $limit: limit },
+    // ]);
 
     await this.postModel.populate(posts, [
       {

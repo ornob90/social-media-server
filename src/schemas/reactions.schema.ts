@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import mongoose, { Document, Types } from 'mongoose';
 import { User } from './users.schema';
 import { Post } from './posts.schema';
 export type ReactionDocument = Reaction & Document;
@@ -7,21 +7,21 @@ export type ReactionDocument = Reaction & Document;
 @Schema({ timestamps: true })
 export class Reaction {
   @Prop({
-    type: Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: Post.name,
     required: [true, 'Post is required and must be a valid post ID'],
   })
   post: Types.ObjectId; // Foreign key to reference Post
 
   @Prop({
-    type: Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: User.name,
     required: [true, 'User ID for Reaction From is required!'],
   })
   reactionFrom: Types.ObjectId;
 
   @Prop({
-    type: Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: User.name,
     required: [true, 'User ID for Reacted To is required!'],
   })

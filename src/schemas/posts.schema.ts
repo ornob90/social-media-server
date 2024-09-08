@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import mongoose, { Document, Types } from 'mongoose';
 import { User } from './users.schema';
 
 export type PostDocument = Post & Document;
@@ -7,20 +7,20 @@ export type PostDocument = Post & Document;
 @Schema({ timestamps: true })
 export class Post {
   @Prop({
-    type: Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: User.name,
     required: [true, 'User is required and must be a valid user ID'],
   })
   user: Types.ObjectId; // Foreign key to reference User
 
   @Prop({
-    type: Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: 'Post',
   })
   sharedPostId: Types.ObjectId;
 
   @Prop({
-    type: Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
   })
   sharedBy: Types.ObjectId;
 

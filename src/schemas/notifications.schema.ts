@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { Document, Types } from 'mongoose';
+import mongoose, { Document, Types } from 'mongoose';
 import { User } from './users.schema';
 
 export type NotificationDocument = Notification & Document;
@@ -7,7 +7,7 @@ export type NotificationDocument = Notification & Document;
 @Schema({ timestamps: true })
 export class Notification {
   @Prop({
-    type: Types.ObjectId,
+    type: mongoose.Schema.Types.ObjectId,
     ref: User.name,
     required: [true, 'User is required and must be a valid user ID'],
   })
