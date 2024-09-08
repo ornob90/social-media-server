@@ -14,6 +14,17 @@ export class Post {
   user: Types.ObjectId; // Foreign key to reference User
 
   @Prop({
+    type: Types.ObjectId,
+    ref: 'Post',
+  })
+  sharedPostId: Types.ObjectId;
+
+  @Prop({
+    type: Types.ObjectId,
+  })
+  sharedBy: Types.ObjectId;
+
+  @Prop({
     required: [true, 'Content is required'],
     minlength: [1, 'Content must be at least 1 character long'],
   })

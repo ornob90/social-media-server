@@ -17,6 +17,7 @@ import { PostsService } from './posts.service';
 import { CreatePostDto } from './dto/create-posts.dto';
 import { VerifiedRequestInterface } from 'src/types/middleware.types';
 import { UpdatePostsDto } from './dto/update-posts.dto';
+import { CreateSharePostDto } from './dto/create-share-post.dto';
 
 @Controller('posts')
 export class PostsController {
@@ -57,6 +58,15 @@ export class PostsController {
     @Body() createPostsDto: CreatePostDto,
   ) {
     return this.postsService.create(req, createPostsDto);
+  }
+
+  @Post('/create/share/:sharePostId')
+  @UsePipes(new ValidationPipe())
+  createSharePost(
+    @Param('sharePostId') sharePostId: string,
+    @Body() createSharePostDto: CreateSharePostDto,
+  ) {
+    return this.postsService.createSharePost(sharePostId, createSharePostDto);
   }
 
   @Put('/update')

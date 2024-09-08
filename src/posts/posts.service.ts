@@ -1,16 +1,19 @@
 import {
   BadRequestException,
   Injectable,
+  InternalServerErrorException,
   NotFoundException,
 } from '@nestjs/common';
 import { VerifiedRequestInterface } from 'src/types/middleware.types';
 import { CreatePostDto } from './dto/create-posts.dto';
 import { InjectModel } from '@nestjs/mongoose';
 import { Post } from 'src/schemas/posts.schema';
-import { Model } from 'mongoose';
+import { model, Model } from 'mongoose';
 import { UpdatePostsDto } from './dto/update-posts.dto';
 import { Reaction } from 'src/schemas/reactions.schema';
 import { User } from 'src/schemas/users.schema';
+import { CreateSharePostDto } from './dto/create-share-post.dto';
+import path from 'path';
 
 @Injectable()
 export class PostsService {
@@ -37,8 +40,8 @@ export class PostsService {
               $match: {
                 $expr: {
                   $and: [
-                    // { $eq: ['$post', '$$postId'] },
-                    // { $eq: ['$reactionFrom', userId] },
+                    { $eq: ['$post', '$$postId'] },
+                    { $eq: ['$reactionFrom', userId] },
                     { $eq: ['$type', 'like'] },
                   ],
                 },
@@ -55,18 +58,32 @@ export class PostsService {
           },
         },
       },
+      // {
+      //   $unset: 'reactions',
+      // },
       {
-        $unset: 'reactions',
+        $sort: { createdAt: -1 },
       },
       { $skip: skip },
       { $limit: limit },
     ]);
 
-    await this.postModel.populate(posts, {
-      path: 'user',
-      model: User.name,
-      select: 'displayName email photoUrl userName',
-    });
+    await this.postModel.populate(posts, [
+      {
+        path: 'user',
+        model: User.name,
+        select: 'displayName email photoUrl userName',
+      },
+      {
+        path: 'sharedPostId',
+        model: Post.name,
+        populate: {
+          path: 'user',
+          model: User.name,
+          select: 'displayName email photoUrl userName',
+        },
+      },
+    ]);
 
     return { totalPosts, posts };
   }
@@ -112,6 +129,34 @@ export class PostsService {
     const post = await postInstance.save();
 
     return post;
+  }
+
+  async createSharePost(
+    sharePostId: string,
+    createSharePostDto: CreateSharePostDto,
+  ) {
+    try {
+      const sharedPost = await this.postModel.findById(sharePostId);
+
+      if (!sharedPost) {
+        throw new NotFoundException('No Post Found For Share!');
+      }
+
+      const postData = {
+        user: sharedPost.user,
+        content: sharedPost.content,
+        images: sharedPost.images,
+        likesCount: sharedPost.likesCount,
+        commentsCount: sharedPost.commentsCount,
+        sharesCount: sharedPost.sharesCount,
+        sharePostId,
+        ...createSharePostDto,
+      };
+
+      const postInstance = new this.postModel(postData);
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
   }
 
   async update(req: VerifiedRequestInterface, updatePostsDto: UpdatePostsDto) {
