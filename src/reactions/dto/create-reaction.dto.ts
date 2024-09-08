@@ -2,13 +2,15 @@ import { IsEnum, IsNotEmpty, IsString } from 'class-validator';
 import { ReactionType } from 'src/types/reactions.types';
 
 export class CreateReactionDto {
-  @IsNotEmpty({ message: 'User Id is Required!' })
-  @IsString({ message: 'User ID Needs To Be a String' })
-  user: string;
-
   @IsNotEmpty({ message: 'Post Id is Required' })
   @IsString({ message: 'Post Id Needs To Be a String' })
   post: string;
+
+  @IsNotEmpty({ message: 'Reaction From ID is required' })
+  reactionFrom: string;
+
+  @IsNotEmpty({ message: 'Reacted To ID is required' })
+  reactedTo: string;
 
   @IsNotEmpty({ message: 'Reaction Type is Required!' })
   @IsEnum(ReactionType, {

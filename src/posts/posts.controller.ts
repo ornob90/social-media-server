@@ -72,4 +72,9 @@ export class PostsController {
   delete(@Param('postId') postId: string) {
     return this.postsService.delete(postId);
   }
+
+  @Get('user-post-ids')
+  getPostAndUserIds() {
+    return this.postsService.getPostAndUserIds();
+  }
 }

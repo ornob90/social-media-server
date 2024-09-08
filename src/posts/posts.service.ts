@@ -14,7 +14,10 @@ import { User } from 'src/schemas/users.schema';
 
 @Injectable()
 export class PostsService {
-  constructor(@InjectModel(Post.name) private postModel: Model<Post>) {}
+  constructor(
+    @InjectModel(Post.name) private postModel: Model<Post>,
+    @InjectModel(Reaction.name) private reactionModel: Model<Reaction>,
+  ) {}
 
   async getAllPosts(userId: string, page = 1, limit = 10) {
     const skip = (page - 1) * limit;
@@ -27,15 +30,15 @@ export class PostsService {
     const posts = await this.postModel.aggregate([
       {
         $lookup: {
-          from: Reaction.name,
+          from: 'reactions',
           let: { postId: '$_id' },
           pipeline: [
             {
               $match: {
                 $expr: {
                   $and: [
-                    { $eq: ['$post', '$$postId'] },
-                    { $eq: ['$user', userId] },
+                    // { $eq: ['$post', '$$postId'] },
+                    // { $eq: ['$reactionFrom', userId] },
                     { $eq: ['$type', 'like'] },
                   ],
                 },
@@ -52,7 +55,9 @@ export class PostsService {
           },
         },
       },
-
+      {
+        $unset: 'reactions',
+      },
       { $skip: skip },
       { $limit: limit },
     ]);
@@ -60,7 +65,7 @@ export class PostsService {
     await this.postModel.populate(posts, {
       path: 'user',
       model: User.name,
-      select: 'displayName email photoUrl',
+      select: 'displayName email photoUrl userName',
     });
 
     return { totalPosts, posts };
@@ -144,5 +149,42 @@ export class PostsService {
     }
 
     return null;
+  }
+
+  async getPostAndUserIds() {
+    // // Step 1: Aggregate likes count for each post
+    // const likesAggregation = await this.reactionModel.aggregate([
+    //   {
+    //     $match: { type: 'like' }, // Filter only 'like' reactions
+    //   },
+    //   {
+    //     $group: {
+    //       _id: '$post', // Group by post ID
+    //       likesCount: { $sum: 1 }, // Count number of likes
+    //     },
+    //   },
+    // ]);
+
+    // // Step 2: Update likesCount in each corresponding post
+    // for (const like of likesAggregation) {
+    //   await this.postModel.updateOne(
+    //     { _id: like._id }, // Find the post by ID
+    //     { $set: { likesCount: like.likesCount } }, // Update the likesCount
+    //   );
+    // }
+
+    // await this.postModel.updateMany(
+    //   {},
+    //   {
+    //     $set: {
+    //       likesCount: 0,
+    //       commentsCount: 0,
+    //     },
+    //   },
+    // );
+
+    const posts = await this.postModel.find({}).select('user likesCount');
+
+    return posts;
   }
 }

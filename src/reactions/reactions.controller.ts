@@ -12,20 +12,23 @@ import {
 } from '@nestjs/common';
 import { ReactionsService } from './reactions.service';
 import { CreateReactionDto } from './dto/create-reaction.dto';
+import { ReactionType } from 'src/types/reactions.types';
+import { UpdateCommentDto } from './dto/update-comment.dto';
+import { ValidatePromise } from 'class-validator';
 
 @Controller('reactions')
 export class ReactionsController {
   constructor(private readonly reactionService: ReactionsService) {}
 
-  @Get('comments/:userId/:postId')
+  @Get('comments/:postId')
   getPaginatedComments(
-    @Param('userId') userId: string,
+    // @Param('userId') userId: string,
     @Param('postId') postId: string,
     @Query('page') page: number,
     @Query('limit') limit: number,
   ) {
     return this.reactionService.getPaginatedComments(
-      userId,
+      // userId,
       postId,
       page,
       limit,
@@ -38,8 +41,34 @@ export class ReactionsController {
     return this.reactionService.createReaction(createReactionDto);
   }
 
-  @Delete('remove/:reactionId')
-  removeReaction(@Param('reactionId') reactionId: string) {
-    return this.reactionService.removeReaction(reactionId);
+  @Put('update/comment/:postId/:reactionFrom/:reactedTo')
+  @UsePipes(new ValidationPipe())
+  updateComment(
+    @Param('postId') postId: string,
+    @Param('reactionFrom') reactionFrom: string,
+    @Param('reactedTo') reactedTo: string,
+    @Body() updateCommentDto: UpdateCommentDto,
+  ) {
+    return this.reactionService.updateComment(
+      postId,
+      reactionFrom,
+      reactedTo,
+      updateCommentDto,
+    );
+  }
+
+  @Delete('remove/:type/:postId/:reactionFrom/:reactedTo')
+  removeReaction(
+    @Param('type') type: ReactionType,
+    @Param('postId') postId: string,
+    @Param('reactionFrom') reactionFrom: string,
+    @Param('reactedTo') reactedTo: string,
+  ) {
+    return this.reactionService.removeReaction(
+      type,
+      postId,
+      reactionFrom,
+      reactedTo,
+    );
   }
 }

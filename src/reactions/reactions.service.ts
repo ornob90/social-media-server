@@ -10,6 +10,7 @@ import { Reaction } from 'src/schemas/reactions.schema';
 import { CreateReactionDto } from './dto/create-reaction.dto';
 import { Post } from 'src/schemas/posts.schema';
 import { ReactionType } from 'src/types/reactions.types';
+import { UpdateCommentDto } from './dto/update-comment.dto';
 
 @Injectable()
 export class ReactionsService {
@@ -25,31 +26,43 @@ export class ReactionsService {
   ) {}
 
   async getPaginatedComments(
-    userId: string,
+    // userId: string,
     postId: string,
     page = 1,
     limit = 10,
   ) {
     const skip = (page - 1) * limit;
 
+    let totalCounts: number;
+    if (skip === 0) {
+      const totalComments = await this.reactionModel.find({
+        post: postId,
+        type: 'comment',
+      });
+
+      totalCounts = totalComments.length;
+    }
+
     const comments = await this.reactionModel
       .find({
-        user: userId,
+        // user: userId,
         post: postId,
         type: 'comment',
       })
       .skip(skip)
       .limit(limit)
-      .exec();
+      .populate('reactionFrom', 'email displayName userName photoUrl')
+      .populate('reactedTo', 'email displayName userName photoUrl');
 
-    return comments;
+    return { totalCounts, comments };
   }
 
   async createReaction(createReactionDto: CreateReactionDto) {
     try {
       const isExist = await this.reactionModel.findOne({
         post: createReactionDto.post,
-        user: createReactionDto.user,
+        reactionFrom: createReactionDto.reactionFrom,
+        reactedTo: createReactionDto.reactedTo,
         type: createReactionDto.type,
       });
 
@@ -82,10 +95,47 @@ export class ReactionsService {
     }
   }
 
-  async removeReaction(reactionId: string) {
+  async updateComment(
+    postId: string,
+    reactionFrom: string,
+    reactedTo: string,
+    updateCommentDto: UpdateCommentDto,
+  ) {
+    try {
+      const reaction = await this.reactionModel.updateOne(
+        {
+          post: postId,
+          reactionFrom: reactionFrom,
+          reactedTo: reactedTo,
+          type: 'comment',
+        },
+        {
+          $set: updateCommentDto,
+        },
+      );
+
+      if (!reaction.acknowledged || reaction.modifiedCount === 0) {
+        throw new NotFoundException('No Comment Updated!');
+      }
+
+      return null;
+    } catch (error) {
+      throw new InternalServerErrorException(error.message);
+    }
+  }
+
+  async removeReaction(
+    type: ReactionType,
+    postId: string,
+    reactionFrom: string,
+    reactedTo: string,
+  ) {
     try {
       const response = await this.reactionModel.findOneAndDelete({
-        _id: reactionId,
+        type,
+        post: postId,
+        reactionFrom: reactionFrom,
+        reactedTo: reactedTo,
       });
 
       if (!response) {

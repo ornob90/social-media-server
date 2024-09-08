@@ -8,17 +8,24 @@ export type ReactionDocument = Reaction & Document;
 export class Reaction {
   @Prop({
     type: Types.ObjectId,
-    ref: User.name,
-    required: [true, 'User is required and must be a valid user ID'],
-  })
-  user: Types.ObjectId; // Foreign key to reference User
-
-  @Prop({
-    type: Types.ObjectId,
     ref: Post.name,
     required: [true, 'Post is required and must be a valid post ID'],
   })
   post: Types.ObjectId; // Foreign key to reference Post
+
+  @Prop({
+    type: Types.ObjectId,
+    ref: User.name,
+    required: [true, 'User ID for Reaction From is required!'],
+  })
+  reactionFrom: Types.ObjectId;
+
+  @Prop({
+    type: Types.ObjectId,
+    ref: User.name,
+    required: [true, 'User ID for Reacted To is required!'],
+  })
+  reactedTo: Types.ObjectId;
 
   @Prop({
     enum: {
