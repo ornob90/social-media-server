@@ -3,7 +3,7 @@ import { Document } from 'mongoose';
 
 export type UserDocument = User & Document;
 
-@Schema()
+@Schema({ timestamps: true })
 export class User {
   @Prop({
     required: [true, 'Username is required'],
@@ -32,44 +32,35 @@ export class User {
   password: string;
 
   @Prop({
-    unique: true,
     match: [/^\d{10}$/, 'Please enter a valid 10-digit phone number'],
   })
-  phone: string;
+  phone?: string;
 
   @Prop({
     maxlength: [150, 'Bio cannot be longer than 150 characters'],
   })
-  bio: string;
+  bio?: string;
+
+  @Prop({ default: null })
+  photoUrl?: string;
+
+  @Prop({ default: 'inactive', enum: ['active', 'inactive'] })
+  status: string;
 
   @Prop({
-    default: null,
-  })
-  photoUrl: string;
-
-  @Prop({
-    enum: {
-      values: ['Everyone', 'Friends'],
-      message: 'Comment Access can only be "Everyone" or "Friends"',
-    },
+    enum: ['Everyone', 'Friends'],
     default: 'Everyone',
   })
   commentAccess: string;
 
   @Prop({
-    enum: {
-      values: ['Everyone', 'Friends'],
-      message: 'Post View Access can only be "Everyone" or "Friends"',
-    },
+    enum: ['Everyone', 'Friends'],
     default: 'Everyone',
   })
   postViewAccess: string;
 
   @Prop({
-    enum: {
-      values: ['Everyone', 'Friends'],
-      message: 'Friend Request Access can only be "Everyone" or "Friends"',
-    },
+    enum: ['Everyone', 'Friends'],
     default: 'Everyone',
   })
   friendRequestAccess: string;

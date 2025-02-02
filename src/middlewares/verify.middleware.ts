@@ -1,6 +1,11 @@
 import { Injectable, NestMiddleware } from '@nestjs/common';
 import { NextFunction, Response } from 'express';
+import { Session } from 'src/types/auth.types';
 import { VerifiedRequestInterface } from 'src/types/middleware.types';
+
+export interface VerifyRequest extends Request {
+  user: Session;
+}
 
 @Injectable()
 export class VerifyMiddleware implements NestMiddleware {

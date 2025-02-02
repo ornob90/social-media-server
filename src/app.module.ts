@@ -13,6 +13,12 @@ import { NotificationModule } from './notification/notification.module';
 import { MessageModule } from './message/message.module';
 import { mongodbConfig } from './config/mongodb.config';
 import { ConfigModule, ConfigService } from '@nestjs/config';
+import { AuthModule } from './auth/auth.module';
+import { CacheModule } from '@nestjs/cache-manager';
+import { jwtConfig } from './config/jwt.config';
+import { JwtModule } from '@nestjs/jwt';
+import { nodemailerConfig } from './config/nodemailer.config';
+import { MailerModule } from '@nestjs-modules/mailer';
 
 @Module({
   imports: [
@@ -26,12 +32,16 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
       }),
       inject: [ConfigService],
     }),
+    CacheModule.register(),
+    JwtModule.register(jwtConfig),
+    MailerModule.forRoot(nodemailerConfig),
     UsersModule,
     ReactionsModule,
     BookmarksModule,
     FollowModule,
     NotificationModule,
     MessageModule,
+    AuthModule,
   ],
   controllers: [AppController],
   providers: [AppService],
